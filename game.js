@@ -62,6 +62,7 @@ function log(msg) {
     div.scrollTop = div.scrollHeight;
 }
 
+// Draw function, controls, etc. (same as before)
 function draw() {
     ctx.fillStyle = '#0a1f0a';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -130,7 +131,7 @@ function draw() {
 
 function gameLoop() { draw(); requestAnimationFrame(gameLoop); }
 
-// Drag & Touch
+// ... (Drag, Touch, Place Building, etc. functions remain the same)
 canvas.addEventListener('mousedown', e => { if(!placing){ isDragging=true; lastX=e.clientX; lastY=e.clientY; }});
 canvas.addEventListener('mousemove', e => {
     if(!isDragging) return;
