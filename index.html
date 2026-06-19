@@ -60,7 +60,7 @@
     </div>
 
 <script>
-// =============== POLY KINGDOMS - UPDATED ===============
+// =============== 3D-STYLE MAP - HIGH QUALITY ===============
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
@@ -78,17 +78,16 @@ let isDragging = false, lastX, lastY;
 
 let map = Array.from({length: WORLD_H}, () => Array(WORLD_W).fill(0));
 
-// Terrain Generation
-for (let i = 0; i < 1300; i++) map[Math.floor(Math.random()*WORLD_H)][Math.floor(Math.random()*WORLD_W)] = 1;
-for (let i = 0; i < 480; i++) if (map[Math.floor(Math.random()*WORLD_H)][Math.floor(Math.random()*WORLD_W)] === 0) map[Math.floor(Math.random()*WORLD_H)][Math.floor(Math.random()*WORLD_W)] = 2;
-for (let i = 0; i < 300; i++) if (map[Math.floor(Math.random()*WORLD_H)][Math.floor(Math.random()*WORLD_W)] === 0) map[Math.floor(Math.random()*WORLD_H)][Math.floor(Math.random()*WORLD_W)] = 3;
+// Rich Terrain
+for (let i = 0; i < 1400; i++) map[Math.floor(Math.random()*WORLD_H)][Math.floor(Math.random()*WORLD_W)] = 1; // Trees
+for (let i = 0; i < 520; i++) if (map[Math.floor(Math.random()*WORLD_H)][Math.floor(Math.random()*WORLD_W)] === 0) map[...][...] = 2; // Hills
+for (let i = 0; i < 320; i++) if (map[Math.floor(Math.random()*WORLD_H)][Math.floor(Math.random()*WORLD_W)] === 0) map[...][...] = 3; // Water
 
 const philippineKingdoms = [
-    "San Jose del Monte Kingdom", "Sapang Palay Kingdom", "Quezon City Empire",
-    "Manila Kingdom", "Davao Empire", "Cebu Kingdom", "Cagayan de Oro Realm",
-    "Zamboanga Sultanate", "Antipolo Kingdom", "Baguio Highland Kingdom",
-    "Iloilo Kingdom", "General Santos Realm", "Makati Empire", "Taguig Kingdom",
-    "Pasig River Kingdom", "Caloocan Dominion"
+    "San Jose del Monte Kingdom", "Sapang Palay Kingdom", "Quezon City Empire", "Manila Kingdom",
+    "Davao Empire", "Cebu Kingdom", "Cagayan de Oro Realm", "Zamboanga Sultanate", 
+    "Antipolo Kingdom", "Baguio Highland Kingdom", "Iloilo Kingdom", "General Santos Realm",
+    "Makati Empire", "Taguig Kingdom", "Pasig River Kingdom"
 ];
 
 function populateList(filter = '') {
@@ -142,47 +141,66 @@ function draw() {
             const sy = y * GRID - cameraY;
             const type = map[y][x];
 
-            ctx.fillStyle = (x+y)%3 === 0 ? '#1c3a1c' : '#162f16';
+            // Base Grass with 3D feel
+            const shade = (x + y) % 3 === 0 ? '#1e3a1e' : '#173217';
+            ctx.fillStyle = shade;
             ctx.fillRect(sx, sy, GRID, GRID);
 
-            if (type === 3) {
-                ctx.fillStyle = '#0b3d5e'; ctx.fillRect(sx, sy, GRID, GRID);
-                ctx.fillStyle = '#1e7ab8'; ctx.fillRect(sx+6, sy+6, GRID-12, GRID-12);
-            } else if (type === 2) {
-                ctx.fillStyle = '#2a4a2a'; ctx.fillRect(sx+3, sy+3, GRID-6, GRID-6);
-                ctx.fillStyle = '#3f5f3f'; ctx.beginPath(); ctx.ellipse(sx+GRID/2, sy+GRID/2.2, GRID*0.38, GRID*0.22, 0, 0, Math.PI*2); ctx.fill();
-            } else if (type === 1) {
-                ctx.fillStyle = '#0f2a0f'; ctx.fillRect(sx+GRID*0.3, sy+GRID*0.55, GRID*0.4, GRID*0.35);
-                ctx.fillStyle = '#0a4'; ctx.beginPath(); ctx.arc(sx + GRID/2, sy + GRID/3.2, 19, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = '#1a8'; ctx.beginPath(); ctx.arc(sx + GRID/2 - 6, sy + GRID/3.8, 13, 0, Math.PI*2); ctx.fill();
+            if (type === 3) { // Water - 3D ripple
+                ctx.fillStyle = '#0b3d5e';
+                ctx.fillRect(sx, sy, GRID, GRID);
+                ctx.fillStyle = '#1e7ab8';
+                ctx.fillRect(sx+5, sy+5, GRID-10, GRID-10);
+                ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                ctx.beginPath();
+                ctx.moveTo(sx+10, sy+GRID/2);
+                ctx.quadraticCurveTo(sx+GRID/2, sy+10, sx+GRID-10, sy+GRID/2);
+                ctx.stroke();
+            } else if (type === 2) { // Hills with strong shading
+                ctx.fillStyle = '#264726';
+                ctx.fillRect(sx+2, sy+2, GRID-4, GRID-4);
+                ctx.fillStyle = '#3f5f3f';
+                ctx.beginPath();
+                ctx.ellipse(sx + GRID/2, sy + GRID/2.3, GRID*0.42, GRID*0.25, 0, 0, Math.PI*2);
+                ctx.fill();
+                // Shadow
+                ctx.fillStyle = 'rgba(0,0,0,0.4)';
+                ctx.fillRect(sx+8, sy+GRID-8, GRID-12, 6);
+            } else if (type === 1) { // Dense Trees with depth
+                ctx.fillStyle = '#0f2a0f';
+                ctx.fillRect(sx + GRID*0.32, sy + GRID*0.58, GRID*0.36, GRID*0.38); // trunk
+                ctx.fillStyle = '#094';
+                ctx.beginPath();
+                ctx.arc(sx + GRID/2, sy + GRID/3.1, 21, 0, Math.PI*2);
+                ctx.fill();
+                ctx.fillStyle = '#1b9';
+                ctx.beginPath();
+                ctx.arc(sx + GRID/2 - 7, sy + GRID/3.6, 14, 0, Math.PI*2);
+                ctx.fill();
             }
         }
     }
 
-    // Different Castle Designs
+    // Buildings with shadows and depth
     buildings.forEach(b => {
         const sx = b.x * GRID - cameraX;
         const sy = b.y * GRID - cameraY;
         if (sx < -GRID || sx > canvas.width || sy < -GRID || sy > canvas.height) return;
 
+        // Shadow
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.fillRect(sx+6, sy+GRID-6, GRID-12, 8);
+
         if (b.type === 'townhall') {
-            if (currentKingdom.includes("San Jose") || currentKingdom.includes("Sapang Palay")) {
-                // San Jose Style Castle
+            if (currentKingdom.includes("San Jose") || currentKingdom.includes("Sapang")) {
                 ctx.fillStyle = '#b97'; ctx.fillRect(sx+4, sy+4, GRID-8, GRID-14);
-                ctx.fillStyle = '#ff0'; ctx.fillRect(sx+10, sy+9, GRID-20, 22);
-                ctx.fillStyle = '#a77'; ctx.fillRect(sx+15, sy+20, GRID-30, 8);
+                ctx.fillStyle = '#ff0'; ctx.fillRect(sx+10, sy+8, GRID-20, 24);
             } else if (currentKingdom.includes("Manila") || currentKingdom.includes("Quezon")) {
-                // Manila Style
                 ctx.fillStyle = '#a88'; ctx.fillRect(sx+3, sy+3, GRID-6, GRID-12);
                 ctx.fillStyle = '#ff0'; ctx.fillRect(sx+9, sy+8, GRID-18, 20);
-            } else if (currentKingdom.includes("Davao") || currentKingdom.includes("Cebu")) {
-                // Southern Style
-                ctx.fillStyle = '#c77'; ctx.fillRect(sx+5, sy+5, GRID-10, GRID-10);
-                ctx.fillStyle = '#ff0'; ctx.fillRect(sx+12, sy+10, GRID-24, 16);
             } else {
-                // Default Castle
                 ctx.fillStyle = '#c98'; ctx.fillRect(sx+4, sy+4, GRID-8, GRID-10);
-                ctx.fillStyle = '#ff0'; ctx.fillRect(sx+13, sy+11, GRID-26, 18);
+                ctx.fillStyle = '#ff0'; ctx.fillRect(sx+13, sy+10, GRID-26, 20);
             }
         } else if (b.type === 'farm') {
             ctx.fillStyle = '#6a5'; ctx.fillRect(sx+6, sy+8, GRID-12, GRID-16);
@@ -201,7 +219,7 @@ function draw() {
 
 function gameLoop() { draw(); requestAnimationFrame(gameLoop); }
 
-// Drag and Touch Controls
+// Controls (Drag + Touch)
 canvas.addEventListener('mousedown', e => { if(!placing){ isDragging=true; lastX=e.clientX; lastY=e.clientY; }});
 canvas.addEventListener('mousemove', e => {
     if(!isDragging) return;
@@ -224,6 +242,7 @@ canvas.addEventListener('touchmove', e => {
 }, {passive:false});
 canvas.addEventListener('touchend', () => isDragging = false);
 
+// Place building, startPlacing, trainTroops, attackBarbarians functions (same as previous)
 canvas.addEventListener('click', e => {
     if (!placing) return;
     const rect = canvas.getBoundingClientRect();
