@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Start Screen -->
+
+    <!-- KINGDOM SELECTION SCREEN -->
     <div id="start-screen">
         <div class="start-content">
             <h1>👑 Poly Kingdoms</h1>
@@ -17,7 +18,7 @@
         </div>
     </div>
 
-    <!-- Game Screen -->
+    <!-- GAME SCREEN -->
     <div id="container" class="hidden">
         <canvas id="canvas" width="960" height="640"></canvas>
         <div id="ui">
@@ -29,13 +30,13 @@
             <div class="resource"><span>💎 Ginto</span> <span id="gold">320</span></div>
 
             <h3>🏗️ Mga Gusali</h3>
-            <button class="btn" onclick="startPlacing('house')">🏠 Bahay</button>
-            <button class="btn" onclick="startPlacing('farm')">🌾 Bukid</button>
-            <button class="btn" onclick="startPlacing('townhall')">🏰 Castle</button>
-            <button class="btn" onclick="startPlacing('barracks')">⚔️ Barracks</button>
+            <button class="btn" onclick="startPlacing('house')">🏠 Bahay (80 Pagkain)</button>
+            <button class="btn" onclick="startPlacing('farm')">🌾 Bukid (130 Pagkain)</button>
+            <button class="btn" onclick="startPlacing('townhall')">🏰 Castle (250 Bato)</button>
+            <button class="btn" onclick="startPlacing('barracks')">⚔️ Barracks (200 Kahoy)</button>
 
             <h3>⚔️ Tropa</h3>
-            <button class="btn" onclick="trainTroops(10)">👥 Sanayin 10 Warriors</button>
+            <button class="btn" onclick="trainTroops(10)">👥 Sanayin 10 Warriors (100 Pagkain)</button>
             <button class="btn" onclick="attackBarbarians()">🚀 Attack Barbarians</button>
 
             <div id="log"></div>
