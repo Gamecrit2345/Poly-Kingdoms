@@ -1,0 +1,44 @@
+body {
+  margin: 0;
+  font-family: Arial;
+  background: #0b1a0b;
+  color: white;
+}
+
+canvas {
+  display: block;
+  background: #123012;
+}
+
+#start-screen {
+  text-align: center;
+  padding-top: 80px;
+}
+
+.kingdom-btn {
+  display: block;
+  margin: 10px auto;
+  padding: 15px;
+  width: 250px;
+  font-size: 16px;
+  background: #2d5a2d;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+.kingdom-btn:hover {
+  background: #3c7a3c;
+}
+
+.hidden {
+  display: none;
+}
+
+#ui {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  background: rgba(0,0,0,0.5);
+  padding: 10px;
+}
