@@ -89,18 +89,17 @@ function draw() {
     const endY = Math.min(WORLD_H, Math.ceil((cameraY + canvas.height) / GRID));
 
     // Trees
-    ctx.fillStyle = '#0a1f0a';
     for (let y = startY; y < endY; y++) {
         for (let x = startX; x < endX; x++) {
             if (map[y][x] === 1) {
                 const sx = x * GRID - cameraX;
                 const sy = y * GRID - cameraY;
+                ctx.fillStyle = '#0a1f0a';
                 ctx.fillRect(sx + 5, sy + 5, GRID - 10, GRID - 10);
                 ctx.fillStyle = '#1a5';
                 ctx.beginPath();
                 ctx.arc(sx + GRID/2, sy + GRID/3, 16, 0, Math.PI*2);
                 ctx.fill();
-                ctx.fillStyle = '#0a1f0a';
             }
         }
     }
@@ -135,7 +134,7 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
-// Drag
+// Drag Map
 canvas.addEventListener('mousedown', e => {
     if (placing) return;
     isDragging = true;
@@ -159,7 +158,7 @@ canvas.addEventListener('mousemove', e => {
 canvas.addEventListener('mouseup', () => isDragging = false);
 canvas.addEventListener('mouseleave', () => isDragging = false);
 
-// Place building
+// Place Building
 canvas.addEventListener('click', e => {
     if (!placing) return;
     const rect = canvas.getBoundingClientRect();
@@ -184,7 +183,7 @@ canvas.addEventListener('click', e => {
         resources.stone -= cost.stone;
         buildings.push({type: placing, x: worldX, y: worldY});
         updateUI();
-        log(`✅ Napatayo ang ${placing.toUpperCase()}!`);
+        log(`✅ Napatayo ang <b>${placing.toUpperCase()}</b>!`);
         placing = null;
     } else {
         log("❌ Kulang ang yaman!");
@@ -239,7 +238,7 @@ setInterval(() => {
 updateUI();
 gameLoop();
 log("🌴 <b>Welcome to Tribes of Malaya!</b>");
-log("🖱️ I-drag ang mapa • Pumili ng gusali • Magtayo");
+log("🖱️ I-drag ang mapa para mag-explore");
 </script>
 </body>
 </html>
