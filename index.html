@@ -7,20 +7,30 @@
     <style>
         body { margin:0; font-family:Arial, sans-serif; background:#0a1f0a; color:#ddd; overflow:hidden; }
         #container { display:flex; height:100vh; }
-        canvas { background:#1a3a1a; display:block; }
-        #ui { width:310px; background:rgba(10,30,10,0.97); padding:15px; overflow-y:auto; border-left:3px solid #555; }
-        .resource { display:flex; justify-content:space-between; background:#112211; padding:10px; margin:8px 0; border-radius:6px; font-size:15px; }
-        button { width:100%; padding:12px; margin:6px 0; background:#224422; color:#ffdd88; border:1px solid #446644; border-radius:6px; cursor:pointer; font-size:15px; }
+        canvas { background:#1a3a1a; display:block; touch-action: none; }
+        #ui { width:320px; background:rgba(10,30,10,0.97); padding:15px; overflow-y:auto; border-left:3px solid #555; }
+        .resource { display:flex; justify-content:space-between; background:#112211; padding:10px; margin:8px 0; border-radius:6px; }
+        button { width:100%; padding:12px; margin:6px 0; background:#224422; color:#ffdd88; border:1px solid #446644; border-radius:6px; cursor:pointer; }
         button:hover { background:#336633; }
-        #log { height:200px; overflow-y:auto; background:#0f1f0f; padding:10px; font-size:13.5px; border-radius:6px; margin-top:10px; }
-        h1 { color:#ffcc66; text-align:center; text-shadow:0 0 8px #ffaa00; }
+        #log { height:160px; overflow-y:auto; background:#0f1f0f; padding:10px; font-size:13px; border-radius:6px; }
+        #start-screen { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:flex; align-items:center; justify-content:center; z-index:100; }
+        #search { width:100%; padding:10px; margin:10px 0; background:#112211; color:white; border:none; border-radius:6px; }
     </style>
 </head>
 <body>
-    <div id="container">
+    <div id="start-screen">
+        <div style="background:#112211; padding:25px; border-radius:12px; max-width:420px; text-align:center;">
+            <h1>👑 Poly Kingdoms</h1>
+            <p>Piliin ang iyong Civilization</p>
+            <input type="text" id="search" placeholder="Mag-search ng city o kingdom...">
+            <div id="civ-list" style="max-height:380px; overflow-y:auto; text-align:left;"></div>
+        </div>
+    </div>
+
+    <div id="container" style="display:none;">
         <canvas id="canvas" width="920" height="620"></canvas>
         <div id="ui">
-            <h1>👑 Poly Kingdoms</h1>
+            <h1 id="kingdom-name">👑 San Jose del Monte Kingdom</h1>
             
             <div class="resource"><span>🍞 Pagkain</span> <span id="food">850</span></div>
             <div class="resource"><span>🪵 Kahoy</span> <span id="wood">650</span></div>
@@ -42,7 +52,7 @@
     </div>
 
 <script>
-// =============== POLY KINGDOMS GAME ===============
+// =============== POLY KINGDOMS ===============
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
@@ -50,21 +60,63 @@ let resources = { food: 850, wood: 650, stone: 450, gold: 280 };
 let buildings = [];
 let troops = 18;
 let placing = null;
+let currentKingdom = "San Jose del Monte Kingdom";
 
 const GRID = 45;
-const WORLD_W = 65;
-const WORLD_H = 48;
-let cameraX = 500, cameraY = 350;
+const WORLD_W = 80;
+const WORLD_H = 55;
+let cameraX = 600, cameraY = 400;
 let isDragging = false, lastX, lastY;
 
 let map = Array.from({length: WORLD_H}, () => Array(WORLD_W).fill(0));
 
-// Generate trees
-for (let i = 0; i < 520; i++) {
+// More varied terrain (trees + water)
+for (let i = 0; i < 680; i++) {
     let x = Math.floor(Math.random() * WORLD_W);
     let y = Math.floor(Math.random() * WORLD_H);
-    map[y][x] = 1;
+    map[y][x] = 1; // tree
 }
+for (let i = 0; i < 180; i++) {
+    let x = Math.floor(Math.random() * WORLD_W);
+    let y = Math.floor(Math.random() * WORLD_H);
+    if (map[y][x] === 0) map[y][x] = 2; // water
+}
+
+const philippineCities = [
+    "San Jose del Monte Kingdom", "Quezon City", "Manila Kingdom", "Davao City", "Cebu Kingdom",
+    "Cagayan de Oro", "Zamboanga City", "Antipolo", "Pasig City", "Taguig", "Caloocan",
+    "Baguio City", "Iloilo City", "Bacoor", "General Santos", "Makati", "Mandaluyong",
+    "Marikina", "Muntinlupa", "Parañaque", "Valenzuela", "Las Piñas"
+];
+
+function populateCivList(filter = '') {
+    const list = document.getElementById('civ-list');
+    list.innerHTML = '';
+    const filtered = philippineCities.filter(c => c.toLowerCase().includes(filter.toLowerCase()));
+    
+    filtered.forEach(city => {
+        const btn = document.createElement('button');
+        btn.textContent = city;
+        btn.style.margin = '4px 0';
+        btn.onclick = () => startGame(city);
+        list.appendChild(btn);
+    });
+}
+
+function startGame(kingdomName) {
+    currentKingdom = kingdomName;
+    document.getElementById('kingdom-name').textContent = `👑 ${kingdomName}`;
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('container').style.display = 'flex';
+    log(`🏰 Maligayang pagdating sa <b>${kingdomName}</b>!`);
+}
+
+document.getElementById('search').addEventListener('input', (e) => {
+    populateCivList(e.target.value);
+});
+
+// Initialize list
+populateCivList();
 
 function updateUI() {
     document.getElementById('food').textContent = Math.floor(resources.food);
@@ -88,12 +140,15 @@ function draw() {
     const endX = Math.min(WORLD_W, Math.ceil((cameraX + canvas.width) / GRID));
     const endY = Math.min(WORLD_H, Math.ceil((cameraY + canvas.height) / GRID));
 
-    // Trees
     for (let y = startY; y < endY; y++) {
         for (let x = startX; x < endX; x++) {
-            if (map[y][x] === 1) {
-                const sx = x * GRID - cameraX;
-                const sy = y * GRID - cameraY;
+            const sx = x * GRID - cameraX;
+            const sy = y * GRID - cameraY;
+            
+            if (map[y][x] === 2) { // water
+                ctx.fillStyle = '#135';
+                ctx.fillRect(sx, sy, GRID, GRID);
+            } else if (map[y][x] === 1) { // tree
                 ctx.fillStyle = '#0a1f0a';
                 ctx.fillRect(sx + 5, sy + 5, GRID - 10, GRID - 10);
                 ctx.fillStyle = '#1a5';
@@ -126,7 +181,7 @@ function draw() {
 
     ctx.fillStyle = '#fff';
     ctx.font = 'bold 22px Arial';
-    ctx.fillText(`👥 ${troops} Warriors`, 25, 45);
+    ctx.fillText(`👥 ${troops}`, 25, 45);
 }
 
 function gameLoop() {
@@ -134,29 +189,45 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
-// Drag Map
-canvas.addEventListener('mousedown', e => {
-    if (placing) return;
-    isDragging = true;
-    lastX = e.clientX;
-    lastY = e.clientY;
-});
-
+// Mouse Drag
+canvas.addEventListener('mousedown', e => { if (!placing) { isDragging = true; lastX = e.clientX; lastY = e.clientY; }});
 canvas.addEventListener('mousemove', e => {
     if (!isDragging) return;
     cameraX -= e.clientX - lastX;
     cameraY -= e.clientY - lastY;
-    lastX = e.clientX;
-    lastY = e.clientY;
-
+    lastX = e.clientX; lastY = e.clientY;
     const maxX = WORLD_W * GRID - canvas.width;
     const maxY = WORLD_H * GRID - canvas.height;
     cameraX = Math.max(0, Math.min(cameraX, maxX));
     cameraY = Math.max(0, Math.min(cameraY, maxY));
 });
-
 canvas.addEventListener('mouseup', () => isDragging = false);
 canvas.addEventListener('mouseleave', () => isDragging = false);
+
+// Touch Support (for phone)
+canvas.addEventListener('touchstart', e => {
+    if (placing) return;
+    isDragging = true;
+    lastX = e.touches[0].clientX;
+    lastY = e.touches[0].clientY;
+    e.preventDefault();
+}, {passive: false});
+
+canvas.addEventListener('touchmove', e => {
+    if (!isDragging) return;
+    cameraX -= e.touches[0].clientX - lastX;
+    cameraY -= e.touches[0].clientY - lastY;
+    lastX = e.touches[0].clientX;
+    lastY = e.touches[0].clientY;
+    
+    const maxX = WORLD_W * GRID - canvas.width;
+    const maxY = WORLD_H * GRID - canvas.height;
+    cameraX = Math.max(0, Math.min(cameraX, maxX));
+    cameraY = Math.max(0, Math.min(cameraY, maxY));
+    e.preventDefault();
+}, {passive: false});
+
+canvas.addEventListener('touchend', () => isDragging = false);
 
 // Place Building
 canvas.addEventListener('click', e => {
@@ -166,7 +237,7 @@ canvas.addEventListener('click', e => {
     const worldY = Math.floor((e.clientY - rect.top + cameraY) / GRID);
 
     if (worldX < 0 || worldX >= WORLD_W || worldY < 0 || worldY >= WORLD_H) return;
-    if (buildings.some(b => b.x === worldX && b.y === worldY) || map[worldY][worldX] === 1) {
+    if (buildings.some(b => b.x === worldX && b.y === worldY) || map[worldY][worldX] !== 0) {
         log("❌ Hindi pwede dito!");
         return;
     }
@@ -178,22 +249,15 @@ canvas.addEventListener('click', e => {
     else if (placing === 'barracks') cost.wood = 190;
 
     if (resources.food >= cost.food && resources.wood >= cost.wood && resources.stone >= cost.stone) {
-        resources.food -= cost.food;
-        resources.wood -= cost.wood;
-        resources.stone -= cost.stone;
+        resources.food -= cost.food; resources.wood -= cost.wood; resources.stone -= cost.stone;
         buildings.push({type: placing, x: worldX, y: worldY});
         updateUI();
         log(`✅ Napatayo ang <b>${placing.toUpperCase()}</b>!`);
         placing = null;
-    } else {
-        log("❌ Kulang ang yaman!");
-    }
+    } else log("❌ Kulang ang yaman!");
 });
 
-function startPlacing(type) {
-    placing = type;
-    log(`📍 Pumili ng lugar sa mapa para sa <b>${type}</b>...`);
-}
+function startPlacing(type) { placing = type; log(`📍 Pumili ng lugar para sa <b>${type}</b>...`); }
 
 function trainTroops(n) {
     const cost = n * 10;
@@ -202,22 +266,17 @@ function trainTroops(n) {
         troops += n;
         updateUI();
         log(`⚔️ Nasanay ${n} warriors!`);
-    } else {
-        log("❌ Kulang sa pagkain!");
-    }
+    } else log("❌ Kulang sa pagkain!");
 }
 
 function attackBarbarians() {
     if (troops < 6) return log("❌ Kulang ang tropa!");
-    
     const win = Math.random() > 0.42;
     const loot = Math.floor(Math.random() * 180) + 70;
-    
     if (win) {
-        resources.gold += loot;
-        resources.food += Math.floor(loot * 0.6);
+        resources.gold += loot; resources.food += Math.floor(loot * 0.6);
         troops = Math.max(5, troops - 3);
-        log(`🏆 Nanalo sa laban! +${loot} ginto`);
+        log(`🏆 Nanalo! +${loot} ginto`);
     } else {
         troops = Math.max(2, troops - 9);
         log("💥 Natalo sa laban...");
@@ -225,7 +284,6 @@ function attackBarbarians() {
     updateUI();
 }
 
-// Auto resource
 setInterval(() => {
     const farms = buildings.filter(b => b.type === 'farm').length;
     const halls = buildings.filter(b => b.type === 'townhall').length;
@@ -237,8 +295,6 @@ setInterval(() => {
 
 updateUI();
 gameLoop();
-log("👑 <b>Welcome to Poly Kingdoms!</b>");
-log("🖱️ I-drag ang mapa para mag-explore");
 </script>
 </body>
 </html>
