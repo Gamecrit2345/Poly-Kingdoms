@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Poly Kingdoms</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- 🟦 KINGDOM SELECTION SCREEN -->
+<div id="start-screen">
+  <h1>Poly Kingdoms</h1>
+
+  <div id="civ-list"></div>
+</div>
+
+<!-- 🟩 GAME SCREEN -->
+<div id="game-screen" class="hidden">
+
+  <!-- 🗺️ MAP -->
+  <canvas id="canvas"></canvas>
+
+  <!-- 📊 RESOURCES UI -->
+  <div id="ui">
+    Food: <span id="food"></span> |
+    Wood: <span id="wood"></span> |
+    Stone: <span id="stone"></span> |
+    Gold: <span id="gold"></span>
+  </div>
+
+</div>
+
+<script src="game.js"></script>
+
+</body>
+</html>
