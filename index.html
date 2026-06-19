@@ -7,7 +7,7 @@
     <style>
         body { margin:0; font-family:Arial, sans-serif; background:#020802; color:#ddd; overflow:hidden; }
         #start-screen { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); display:flex; align-items:center; justify-content:center; z-index:100; }
-        #start-content { background:#0f2a0f; padding:30px; border-radius:15px; max-width:480px; text-align:center; border:2px solid #446644; }
+        #start-content { background:#0f2a0f; padding:30px; border-radius:15px; max-width:520px; text-align:center; border:2px solid #446644; }
         #search { width:100%; padding:12px; margin:15px 0; background:#112211; color:white; border:none; border-radius:8px; font-size:16px; }
         button { width:100%; padding:14px; margin:6px 0; background:#1f3a1f; color:#ffdd88; border:1px solid #557755; border-radius:8px; cursor:pointer; font-size:16px; }
         button:hover { background:#2a4a2a; }
@@ -48,7 +48,7 @@
             <h3>🏗️ Mga Gusali</h3>
             <button class="btn" onclick="startPlacing('house')">🏠 Bahay (80 Pagkain)</button>
             <button class="btn" onclick="startPlacing('farm')">🌾 Bukid (130 Pagkain)</button>
-            <button class="btn" onclick="startPlacing('townhall')">🏛️ Castle (250 Bato)</button>
+            <button class="btn" onclick="startPlacing('townhall')">🏰 Castle (250 Bato)</button>
             <button class="btn" onclick="startPlacing('barracks')">⚔️ Barracks (200 Kahoy)</button>
 
             <h3>⚔️ Tropa</h3>
@@ -60,7 +60,7 @@
     </div>
 
 <script>
-// =============== POLY KINGDOMS - HIGH QUALITY ===============
+// =============== POLY KINGDOMS - UPDATED ===============
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
@@ -78,15 +78,17 @@ let isDragging = false, lastX, lastY;
 
 let map = Array.from({length: WORLD_H}, () => Array(WORLD_W).fill(0));
 
-// Terrain
+// Terrain Generation
 for (let i = 0; i < 1300; i++) map[Math.floor(Math.random()*WORLD_H)][Math.floor(Math.random()*WORLD_W)] = 1;
-for (let i = 0; i < 480; i++) if (map[Math.floor(Math.random()*WORLD_H)][Math.floor(Math.random()*WORLD_W)] === 0) map[...][...] = 2;
-for (let i = 0; i < 300; i++) if (map[Math.floor(Math.random()*WORLD_H)][Math.floor(Math.random()*WORLD_W)] === 0) map[...][...] = 3;
+for (let i = 0; i < 480; i++) if (map[Math.floor(Math.random()*WORLD_H)][Math.floor(Math.random()*WORLD_W)] === 0) map[Math.floor(Math.random()*WORLD_H)][Math.floor(Math.random()*WORLD_W)] = 2;
+for (let i = 0; i < 300; i++) if (map[Math.floor(Math.random()*WORLD_H)][Math.floor(Math.random()*WORLD_W)] === 0) map[Math.floor(Math.random()*WORLD_H)][Math.floor(Math.random()*WORLD_W)] = 3;
 
 const philippineKingdoms = [
-    "San Jose del Monte Kingdom", "Quezon City Empire", "Manila Kingdom", "Davao Empire", 
-    "Cebu Kingdom", "Cagayan de Oro Realm", "Zamboanga Sultanate", "Antipolo Kingdom",
-    "Baguio Highland Kingdom", "Iloilo Kingdom", "General Santos Realm"
+    "San Jose del Monte Kingdom", "Sapang Palay Kingdom", "Quezon City Empire",
+    "Manila Kingdom", "Davao Empire", "Cebu Kingdom", "Cagayan de Oro Realm",
+    "Zamboanga Sultanate", "Antipolo Kingdom", "Baguio Highland Kingdom",
+    "Iloilo Kingdom", "General Santos Realm", "Makati Empire", "Taguig Kingdom",
+    "Pasig River Kingdom", "Caloocan Dominion"
 ];
 
 function populateList(filter = '') {
@@ -143,13 +145,13 @@ function draw() {
             ctx.fillStyle = (x+y)%3 === 0 ? '#1c3a1c' : '#162f16';
             ctx.fillRect(sx, sy, GRID, GRID);
 
-            if (type === 3) { // Water
+            if (type === 3) {
                 ctx.fillStyle = '#0b3d5e'; ctx.fillRect(sx, sy, GRID, GRID);
                 ctx.fillStyle = '#1e7ab8'; ctx.fillRect(sx+6, sy+6, GRID-12, GRID-12);
-            } else if (type === 2) { // Hills
+            } else if (type === 2) {
                 ctx.fillStyle = '#2a4a2a'; ctx.fillRect(sx+3, sy+3, GRID-6, GRID-6);
                 ctx.fillStyle = '#3f5f3f'; ctx.beginPath(); ctx.ellipse(sx+GRID/2, sy+GRID/2.2, GRID*0.38, GRID*0.22, 0, 0, Math.PI*2); ctx.fill();
-            } else if (type === 1) { // Trees
+            } else if (type === 1) {
                 ctx.fillStyle = '#0f2a0f'; ctx.fillRect(sx+GRID*0.3, sy+GRID*0.55, GRID*0.4, GRID*0.35);
                 ctx.fillStyle = '#0a4'; ctx.beginPath(); ctx.arc(sx + GRID/2, sy + GRID/3.2, 19, 0, Math.PI*2); ctx.fill();
                 ctx.fillStyle = '#1a8'; ctx.beginPath(); ctx.arc(sx + GRID/2 - 6, sy + GRID/3.8, 13, 0, Math.PI*2); ctx.fill();
@@ -157,21 +159,28 @@ function draw() {
         }
     }
 
-    // Buildings with different styles per kingdom
+    // Different Castle Designs
     buildings.forEach(b => {
         const sx = b.x * GRID - cameraX;
         const sy = b.y * GRID - cameraY;
         if (sx < -GRID || sx > canvas.width || sy < -GRID || sy > canvas.height) return;
 
         if (b.type === 'townhall') {
-            // Different Castle per Kingdom
-            if (currentKingdom.includes("San Jose") || currentKingdom.includes("del Monte")) {
-                ctx.fillStyle = '#b97'; ctx.fillRect(sx+4, sy+4, GRID-8, GRID-12); // Main
-                ctx.fillStyle = '#ff0'; ctx.fillRect(sx+12, sy+8, GRID-24, 18);
+            if (currentKingdom.includes("San Jose") || currentKingdom.includes("Sapang Palay")) {
+                // San Jose Style Castle
+                ctx.fillStyle = '#b97'; ctx.fillRect(sx+4, sy+4, GRID-8, GRID-14);
+                ctx.fillStyle = '#ff0'; ctx.fillRect(sx+10, sy+9, GRID-20, 22);
+                ctx.fillStyle = '#a77'; ctx.fillRect(sx+15, sy+20, GRID-30, 8);
             } else if (currentKingdom.includes("Manila") || currentKingdom.includes("Quezon")) {
-                ctx.fillStyle = '#a88'; ctx.fillRect(sx+3, sy+3, GRID-6, GRID-10);
-                ctx.fillStyle = '#ff0'; ctx.fillRect(sx+10, sy+9, GRID-20, 16);
+                // Manila Style
+                ctx.fillStyle = '#a88'; ctx.fillRect(sx+3, sy+3, GRID-6, GRID-12);
+                ctx.fillStyle = '#ff0'; ctx.fillRect(sx+9, sy+8, GRID-18, 20);
+            } else if (currentKingdom.includes("Davao") || currentKingdom.includes("Cebu")) {
+                // Southern Style
+                ctx.fillStyle = '#c77'; ctx.fillRect(sx+5, sy+5, GRID-10, GRID-10);
+                ctx.fillStyle = '#ff0'; ctx.fillRect(sx+12, sy+10, GRID-24, 16);
             } else {
+                // Default Castle
                 ctx.fillStyle = '#c98'; ctx.fillRect(sx+4, sy+4, GRID-8, GRID-10);
                 ctx.fillStyle = '#ff0'; ctx.fillRect(sx+13, sy+11, GRID-26, 18);
             }
@@ -192,7 +201,7 @@ function draw() {
 
 function gameLoop() { draw(); requestAnimationFrame(gameLoop); }
 
-// Drag & Touch (same as before)
+// Drag and Touch Controls
 canvas.addEventListener('mousedown', e => { if(!placing){ isDragging=true; lastX=e.clientX; lastY=e.clientY; }});
 canvas.addEventListener('mousemove', e => {
     if(!isDragging) return;
