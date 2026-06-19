@@ -24,7 +24,7 @@
 </head>
 <body>
 
-    <!-- START SCREEN -->
+    <!-- KINGDOM SELECTION -->
     <div id="start-screen">
         <div id="start-content">
             <h1>👑 Poly Kingdoms</h1>
@@ -34,7 +34,7 @@
         </div>
     </div>
 
-    <!-- GAME SCREEN -->
+    <!-- GAME -->
     <div id="container">
         <canvas id="canvas" width="960" height="640"></canvas>
         <div id="ui">
@@ -60,7 +60,7 @@
     </div>
 
 <script>
-// =============== 3D-STYLE MAP - HIGH QUALITY ===============
+// =============== FINAL VERSION WITH KINGDOM SELECTION + 3D MAP ===============
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
@@ -78,10 +78,10 @@ let isDragging = false, lastX, lastY;
 
 let map = Array.from({length: WORLD_H}, () => Array(WORLD_W).fill(0));
 
-// Rich Terrain
-for (let i = 0; i < 1400; i++) map[Math.floor(Math.random()*WORLD_H)][Math.floor(Math.random()*WORLD_W)] = 1; // Trees
-for (let i = 0; i < 520; i++) if (map[Math.floor(Math.random()*WORLD_H)][Math.floor(Math.random()*WORLD_W)] === 0) map[...][...] = 2; // Hills
-for (let i = 0; i < 320; i++) if (map[Math.floor(Math.random()*WORLD_H)][Math.floor(Math.random()*WORLD_W)] === 0) map[...][...] = 3; // Water
+// Rich 3D Terrain
+for (let i = 0; i < 1400; i++) map[Math.floor(Math.random()*WORLD_H)][Math.floor(Math.random()*WORLD_W)] = 1;
+for (let i = 0; i < 520; i++) if (map[Math.floor(Math.random()*WORLD_H)][Math.floor(Math.random()*WORLD_W)] === 0) map[Math.floor(Math.random()*WORLD_H)][Math.floor(Math.random()*WORLD_W)] = 2;
+for (let i = 0; i < 320; i++) if (map[Math.floor(Math.random()*WORLD_H)][Math.floor(Math.random()*WORLD_W)] === 0) map[Math.floor(Math.random()*WORLD_H)][Math.floor(Math.random()*WORLD_W)] = 3;
 
 const philippineKingdoms = [
     "San Jose del Monte Kingdom", "Sapang Palay Kingdom", "Quezon City Empire", "Manila Kingdom",
@@ -141,53 +141,30 @@ function draw() {
             const sy = y * GRID - cameraY;
             const type = map[y][x];
 
-            // Base Grass with 3D feel
-            const shade = (x + y) % 3 === 0 ? '#1e3a1e' : '#173217';
-            ctx.fillStyle = shade;
+            ctx.fillStyle = (x+y)%3 === 0 ? '#1e3a1e' : '#173217';
             ctx.fillRect(sx, sy, GRID, GRID);
 
-            if (type === 3) { // Water - 3D ripple
-                ctx.fillStyle = '#0b3d5e';
-                ctx.fillRect(sx, sy, GRID, GRID);
-                ctx.fillStyle = '#1e7ab8';
-                ctx.fillRect(sx+5, sy+5, GRID-10, GRID-10);
-                ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-                ctx.beginPath();
-                ctx.moveTo(sx+10, sy+GRID/2);
-                ctx.quadraticCurveTo(sx+GRID/2, sy+10, sx+GRID-10, sy+GRID/2);
-                ctx.stroke();
-            } else if (type === 2) { // Hills with strong shading
-                ctx.fillStyle = '#264726';
-                ctx.fillRect(sx+2, sy+2, GRID-4, GRID-4);
-                ctx.fillStyle = '#3f5f3f';
-                ctx.beginPath();
-                ctx.ellipse(sx + GRID/2, sy + GRID/2.3, GRID*0.42, GRID*0.25, 0, 0, Math.PI*2);
-                ctx.fill();
-                // Shadow
-                ctx.fillStyle = 'rgba(0,0,0,0.4)';
-                ctx.fillRect(sx+8, sy+GRID-8, GRID-12, 6);
-            } else if (type === 1) { // Dense Trees with depth
-                ctx.fillStyle = '#0f2a0f';
-                ctx.fillRect(sx + GRID*0.32, sy + GRID*0.58, GRID*0.36, GRID*0.38); // trunk
-                ctx.fillStyle = '#094';
-                ctx.beginPath();
-                ctx.arc(sx + GRID/2, sy + GRID/3.1, 21, 0, Math.PI*2);
-                ctx.fill();
-                ctx.fillStyle = '#1b9';
-                ctx.beginPath();
-                ctx.arc(sx + GRID/2 - 7, sy + GRID/3.6, 14, 0, Math.PI*2);
-                ctx.fill();
+            if (type === 3) { // Water
+                ctx.fillStyle = '#0b3d5e'; ctx.fillRect(sx, sy, GRID, GRID);
+                ctx.fillStyle = '#1e7ab8'; ctx.fillRect(sx+5, sy+5, GRID-10, GRID-10);
+            } else if (type === 2) { // Hills
+                ctx.fillStyle = '#264726'; ctx.fillRect(sx+2, sy+2, GRID-4, GRID-4);
+                ctx.fillStyle = '#3f5f3f'; ctx.beginPath(); ctx.ellipse(sx + GRID/2, sy + GRID/2.3, GRID*0.42, GRID*0.25, 0, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.fillRect(sx+8, sy+GRID-8, GRID-12, 6);
+            } else if (type === 1) { // Trees
+                ctx.fillStyle = '#0f2a0f'; ctx.fillRect(sx + GRID*0.32, sy + GRID*0.58, GRID*0.36, GRID*0.38);
+                ctx.fillStyle = '#094'; ctx.beginPath(); ctx.arc(sx + GRID/2, sy + GRID/3.1, 21, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#1b9'; ctx.beginPath(); ctx.arc(sx + GRID/2 - 7, sy + GRID/3.6, 14, 0, Math.PI*2); ctx.fill();
             }
         }
     }
 
-    // Buildings with shadows and depth
+    // Buildings
     buildings.forEach(b => {
         const sx = b.x * GRID - cameraX;
         const sy = b.y * GRID - cameraY;
         if (sx < -GRID || sx > canvas.width || sy < -GRID || sy > canvas.height) return;
 
-        // Shadow
         ctx.fillStyle = 'rgba(0,0,0,0.5)';
         ctx.fillRect(sx+6, sy+GRID-6, GRID-12, 8);
 
@@ -219,7 +196,7 @@ function draw() {
 
 function gameLoop() { draw(); requestAnimationFrame(gameLoop); }
 
-// Controls (Drag + Touch)
+// Drag & Touch
 canvas.addEventListener('mousedown', e => { if(!placing){ isDragging=true; lastX=e.clientX; lastY=e.clientY; }});
 canvas.addEventListener('mousemove', e => {
     if(!isDragging) return;
@@ -242,7 +219,6 @@ canvas.addEventListener('touchmove', e => {
 }, {passive:false});
 canvas.addEventListener('touchend', () => isDragging = false);
 
-// Place building, startPlacing, trainTroops, attackBarbarians functions (same as previous)
 canvas.addEventListener('click', e => {
     if (!placing) return;
     const rect = canvas.getBoundingClientRect();
