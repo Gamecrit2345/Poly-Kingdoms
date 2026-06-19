@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- KINGDOM SELECTION (Hindi tinanggal) -->
+    <!-- KINGDOM SELECTION -->
     <div id="start-screen">
         <div class="start-content">
             <h1>👑 Poly Kingdoms</h1>
@@ -17,9 +17,10 @@
         </div>
     </div>
 
-    <!-- GAME -->
+    <!-- GAME SCREEN -->
     <div id="container" class="hidden">
         <canvas id="canvas" width="960" height="640"></canvas>
+        
         <div id="ui">
             <h1 id="kingdom-name">👑 San Jose del Monte Kingdom</h1>
             
@@ -35,6 +36,15 @@
             <button class="btn" onclick="startPlacing('farm')">🌾 Bukid (130 Pagkain)</button>
             <button class="btn" onclick="startPlacing('townhall')">🏰 Castle (250 Bato)</button>
             <button class="btn" onclick="startPlacing('barracks')">⚔️ Barracks (200 Kahoy)</button>
+
+            <!-- BAGONG FARMING SYSTEM -->
+            <h3>🌾 Farming / Gathering (Gamit Sundalo)</h3>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:15px;">
+                <button class="btn" onclick="startGathering('food', 8)">🌾 Food (8 troops)</button>
+                <button class="btn" onclick="startGathering('wood', 8)">🪵 Wood (8 troops)</button>
+                <button class="btn" onclick="startGathering('stone', 6)">🪨 Stone (6 troops)</button>
+                <button class="btn" onclick="startGathering('gold', 5)">💎 Gold (5 troops)</button>
+            </div>
 
             <h3>⚔️ Tropa</h3>
             <button class="btn" onclick="trainTroops(10)">👥 Sanayin 10 Warriors (100 Pagkain)</button>
