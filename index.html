@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tribes of Malaya</title>
+    <title>Poly Kingdoms</title>
     <style>
         body { margin:0; font-family:Arial, sans-serif; background:#0a1f0a; color:#ddd; overflow:hidden; }
         #container { display:flex; height:100vh; }
@@ -20,9 +20,9 @@
     <div id="container">
         <canvas id="canvas" width="920" height="620"></canvas>
         <div id="ui">
-            <h1>🌴 Tribes of Malaya</h1>
+            <h1>👑 Poly Kingdoms</h1>
             
-            <div class="resource"><span>🍚 Pagkain</span> <span id="food">850</span></div>
+            <div class="resource"><span>🍞 Pagkain</span> <span id="food">850</span></div>
             <div class="resource"><span>🪵 Kahoy</span> <span id="wood">650</span></div>
             <div class="resource"><span>🪨 Bato</span> <span id="stone">450</span></div>
             <div class="resource"><span>💎 Ginto</span> <span id="gold">280</span></div>
@@ -30,19 +30,19 @@
             <h3>🏗️ Mga Gusali</h3>
             <button onclick="startPlacing('house')">🏠 Bahay (80 Pagkain)</button>
             <button onclick="startPlacing('farm')">🌾 Bukid (130 Pagkain)</button>
-            <button onclick="startPlacing('townhall')">🏛️ Pamayanan (220 Bato)</button>
-            <button onclick="startPlacing('barracks')">🛡️ Kuta (190 Kahoy)</button>
+            <button onclick="startPlacing('townhall')">🏛️ Town Hall (220 Bato)</button>
+            <button onclick="startPlacing('barracks')">⚔️ Barracks (190 Kahoy)</button>
 
-            <h3>⚔️ Mandirigma</h3>
-            <button onclick="trainTroops(8)">👥 Sanayin 8 Mandirigma (80 Pagkain)</button>
-            <button onclick="attackBarbarians()">🏹 Salakayin ang Barbarian</button>
+            <h3>⚔️ Tropa</h3>
+            <button onclick="trainTroops(8)">👥 Sanayin 8 Warriors (80 Pagkain)</button>
+            <button onclick="attackBarbarians()">🚀 Attack Barbarians</button>
 
             <div id="log"></div>
         </div>
     </div>
 
 <script>
-// Game Code
+// =============== POLY KINGDOMS GAME ===============
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
@@ -59,6 +59,7 @@ let isDragging = false, lastX, lastY;
 
 let map = Array.from({length: WORLD_H}, () => Array(WORLD_W).fill(0));
 
+// Generate trees
 for (let i = 0; i < 520; i++) {
     let x = Math.floor(Math.random() * WORLD_W);
     let y = Math.floor(Math.random() * WORLD_H);
@@ -87,6 +88,7 @@ function draw() {
     const endX = Math.min(WORLD_W, Math.ceil((cameraX + canvas.width) / GRID));
     const endY = Math.min(WORLD_H, Math.ceil((cameraY + canvas.height) / GRID));
 
+    // Trees
     for (let y = startY; y < endY; y++) {
         for (let x = startX; x < endX; x++) {
             if (map[y][x] === 1) {
@@ -102,6 +104,7 @@ function draw() {
         }
     }
 
+    // Buildings
     buildings.forEach(b => {
         const sx = b.x * GRID - cameraX;
         const sy = b.y * GRID - cameraY;
@@ -123,7 +126,7 @@ function draw() {
 
     ctx.fillStyle = '#fff';
     ctx.font = 'bold 22px Arial';
-    ctx.fillText(`👥 ${troops}`, 25, 45);
+    ctx.fillText(`👥 ${troops} Warriors`, 25, 45);
 }
 
 function gameLoop() {
@@ -131,20 +134,31 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
-canvas.addEventListener('mousedown', e => { if (!placing) { isDragging = true; lastX = e.clientX; lastY = e.clientY; }});
+// Drag Map
+canvas.addEventListener('mousedown', e => {
+    if (placing) return;
+    isDragging = true;
+    lastX = e.clientX;
+    lastY = e.clientY;
+});
+
 canvas.addEventListener('mousemove', e => {
     if (!isDragging) return;
     cameraX -= e.clientX - lastX;
     cameraY -= e.clientY - lastY;
-    lastX = e.clientX; lastY = e.clientY;
+    lastX = e.clientX;
+    lastY = e.clientY;
+
     const maxX = WORLD_W * GRID - canvas.width;
     const maxY = WORLD_H * GRID - canvas.height;
     cameraX = Math.max(0, Math.min(cameraX, maxX));
     cameraY = Math.max(0, Math.min(cameraY, maxY));
 });
+
 canvas.addEventListener('mouseup', () => isDragging = false);
 canvas.addEventListener('mouseleave', () => isDragging = false);
 
+// Place Building
 canvas.addEventListener('click', e => {
     if (!placing) return;
     const rect = canvas.getBoundingClientRect();
@@ -164,27 +178,46 @@ canvas.addEventListener('click', e => {
     else if (placing === 'barracks') cost.wood = 190;
 
     if (resources.food >= cost.food && resources.wood >= cost.wood && resources.stone >= cost.stone) {
-        resources.food -= cost.food; resources.wood -= cost.wood; resources.stone -= cost.stone;
+        resources.food -= cost.food;
+        resources.wood -= cost.wood;
+        resources.stone -= cost.stone;
         buildings.push({type: placing, x: worldX, y: worldY});
         updateUI();
         log(`✅ Napatayo ang <b>${placing.toUpperCase()}</b>!`);
         placing = null;
-    } else log("❌ Kulang ang yaman!");
+    } else {
+        log("❌ Kulang ang yaman!");
+    }
 });
 
-function startPlacing(type) { placing = type; log(`📍 Pumili ng lugar para sa <b>${type}</b>...`); }
+function startPlacing(type) {
+    placing = type;
+    log(`📍 Pumili ng lugar sa mapa para sa <b>${type}</b>...`);
+}
+
 function trainTroops(n) {
     const cost = n * 10;
-    if (resources.food >= cost) { resources.food -= cost; troops += n; updateUI(); log(`⚔️ Nasanay ${n} mandirigma!`); }
-    else log("❌ Kulang sa pagkain!");
+    if (resources.food >= cost) {
+        resources.food -= cost;
+        troops += n;
+        updateUI();
+        log(`⚔️ Nasanay ${n} warriors!`);
+    } else {
+        log("❌ Kulang sa pagkain!");
+    }
 }
+
 function attackBarbarians() {
-    if (troops < 6) return log("❌ Kulang ang mandirigma!");
+    if (troops < 6) return log("❌ Kulang ang tropa!");
+    
     const win = Math.random() > 0.42;
     const loot = Math.floor(Math.random() * 180) + 70;
+    
     if (win) {
-        resources.gold += loot; resources.food += Math.floor(loot * 0.6); troops = Math.max(5, troops - 3);
-        log(`🏆 Tagumpay! +${loot} ginto`);
+        resources.gold += loot;
+        resources.food += Math.floor(loot * 0.6);
+        troops = Math.max(5, troops - 3);
+        log(`🏆 Nanalo sa laban! +${loot} ginto`);
     } else {
         troops = Math.max(2, troops - 9);
         log("💥 Natalo sa laban...");
@@ -192,6 +225,7 @@ function attackBarbarians() {
     updateUI();
 }
 
+// Auto resource
 setInterval(() => {
     const farms = buildings.filter(b => b.type === 'farm').length;
     const halls = buildings.filter(b => b.type === 'townhall').length;
@@ -203,7 +237,7 @@ setInterval(() => {
 
 updateUI();
 gameLoop();
-log("🌴 <b>Welcome to Tribes of Malaya!</b>");
+log("👑 <b>Welcome to Poly Kingdoms!</b>");
 log("🖱️ I-drag ang mapa para mag-explore");
 </script>
 </body>
