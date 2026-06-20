@@ -23,16 +23,34 @@ let resources = {
 };
 
 /* =========================
-   BUILDINGS (ROK SYSTEM)
+   BUILDINGS + LEVELS
 ========================= */
 
 let buildings = {
-  castle: 1,
   farm: 0,
   lumber: 0,
   quarry: 0,
-  goldmine: 0
+  goldmine: 0,
+  castle: 1
 };
+
+/* =========================
+   BUILDING TIMERS
+========================= */
+
+let buildTimers = {};
+
+/* =========================
+   BUILD TIME RULES
+   lvl1 = 30s, lvl2 = 1m, lvl3 = 3m, lvl4 = 5m max
+========================= */
+
+function getBuildTime(level) {
+  if (level === 0) return 30000;
+  if (level === 1) return 60000;
+  if (level === 2) return 180000;
+  return 300000;
+}
 
 /* =========================
    UI UPDATE
@@ -46,7 +64,72 @@ function updateUI() {
 }
 
 /* =========================
-   BUILDING BONUS SYSTEM
+   BUILD START FUNCTION
+========================= */
+
+function startBuild(type, button) {
+
+  if (buildTimers[type]) return;
+
+  let level = buildings[type];
+  let time = getBuildTime(level);
+  let start = Date.now();
+
+  button.disabled = true;
+
+  buildTimers[type] = setInterval(() => {
+
+    let progress = (Date.now() - start) / time;
+
+    button.innerText = `${type.toUpperCase()} ${Math.floor(progress * 100)}%`;
+
+    if (progress >= 1) {
+
+      clearInterval(buildTimers[type]);
+      delete buildTimers[type];
+
+      buildings[type]++;
+
+      button.innerText = `${type.toUpperCase()} LVL ${buildings[type]}`;
+      button.disabled = false;
+
+    }
+
+  }, 100);
+}
+
+/* =========================
+   BUILD BUTTON EVENTS
+   (from HTML UI)
+========================= */
+
+window.onload = () => {
+
+  const startScreen = document.getElementById("start-screen");
+  const gameScreen = document.getElementById("game-screen");
+
+  document.getElementById("farmBtn").onclick = (e) => startBuild("farm", e.target);
+  document.getElementById("woodBtn").onclick = (e) => startBuild("lumber", e.target);
+  document.getElementById("stoneBtn").onclick = (e) => startBuild("quarry", e.target);
+  document.getElementById("goldBtn").onclick = (e) => startBuild("goldmine", e.target);
+  document.getElementById("castleBtn").onclick = (e) => startBuild("castle", e.target);
+
+  document.addEventListener("click", () => {
+
+    if (gameStarted) return;
+
+    gameStarted = true;
+
+    startScreen.style.display = "none";
+    gameScreen.classList.remove("hidden");
+
+    updateUI();
+    loop();
+  });
+};
+
+/* =========================
+   BUILDING INCOME SYSTEM
 ========================= */
 
 function applyBuildingIncome() {
@@ -56,16 +139,14 @@ function applyBuildingIncome() {
   resources.stone += buildings.quarry * 2;
   resources.gold += buildings.goldmine * 2;
 
-  if (buildings.castle > 1) {
-    resources.food += buildings.castle;
-    resources.wood += buildings.castle;
-    resources.stone += buildings.castle;
-    resources.gold += buildings.castle;
-  }
+  resources.food += buildings.castle;
+  resources.wood += buildings.castle;
+  resources.stone += buildings.castle;
+  resources.gold += buildings.castle;
 }
 
 /* =========================
-   PASSIVE INCOME
+   PASSIVE INCOME LOOP
 ========================= */
 
 setInterval(() => {
@@ -99,7 +180,7 @@ for (let i = 0; i < 120; i++) {
 }
 
 /* =========================
-   LAVA RIVER (UNCHANGED)
+   LAVA RIVER
 ========================= */
 
 function drawLavaRiver() {
@@ -118,7 +199,6 @@ function drawLavaRiver() {
 
   ctx.fillStyle = g;
 
-  // LEFT
   ctx.beginPath();
   ctx.moveTo(canvas.width * 0.25, 0);
 
@@ -132,7 +212,6 @@ function drawLavaRiver() {
   ctx.lineTo(canvas.width * 0.30, canvas.height);
   ctx.fill();
 
-  // RIGHT
   ctx.beginPath();
   ctx.moveTo(canvas.width * 0.70, 0);
 
@@ -150,7 +229,7 @@ function drawLavaRiver() {
 }
 
 /* =========================
-   EMBERS
+   EMBERS DRAW
 ========================= */
 
 function drawEmbers() {
@@ -190,10 +269,9 @@ function drawUnits() {
 }
 
 /* =========================
-   CONTROLS
+   CLICK = SPAWN UNIT
 ========================= */
 
-// SPAWN UNIT
 document.addEventListener("click", () => {
 
   if (!gameStarted) return;
@@ -205,16 +283,13 @@ document.addEventListener("click", () => {
   });
 });
 
-// BUILD SYSTEM
+/* =========================
+   KEY BOOSTS
+========================= */
+
 document.addEventListener("keydown", (e) => {
 
   if (!gameStarted) return;
-
-  if (e.key === "1") buildings.farm++;
-  if (e.key === "2") buildings.lumber++;
-  if (e.key === "3") buildings.quarry++;
-  if (e.key === "4") buildings.goldmine++;
-  if (e.key === "c") buildings.castle++;
 
   if (e.key === "f") resources.food += 20;
   if (e.key === "w") resources.wood += 20;
@@ -225,7 +300,7 @@ document.addEventListener("keydown", (e) => {
 });
 
 /* =========================
-   LOOP
+   MAIN LOOP
 ========================= */
 
 function loop() {
@@ -240,26 +315,3 @@ function loop() {
 
   requestAnimationFrame(loop);
 }
-
-/* =========================
-   START GAME
-========================= */
-
-window.onload = () => {
-
-  const startScreen = document.getElementById("start-screen");
-  const gameScreen = document.getElementById("game-screen");
-
-  document.addEventListener("click", () => {
-
-    if (gameStarted) return;
-
-    gameStarted = true;
-
-    startScreen.style.display = "none";
-    gameScreen.classList.remove("hidden");
-
-    updateUI();
-    loop();
-  });
-};
