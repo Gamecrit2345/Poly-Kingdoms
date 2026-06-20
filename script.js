@@ -1,7 +1,3 @@
-/* =========================
-   POLY KINGDOMS FIRE VERSION
-========================= */
-
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
@@ -9,7 +5,13 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 /* =========================
-   FIRE EFFECT VARIABLES
+   GAME STATE
+========================= */
+
+let gameStarted = false;
+
+/* =========================
+   EMBERS
 ========================= */
 
 const embers = [];
@@ -25,37 +27,32 @@ for (let i = 0; i < 120; i++) {
 }
 
 /* =========================
-   LAVA RIVER
+   DRAW LAVA
 ========================= */
 
 function drawLavaRiver() {
 
   lavaOffset += 2;
 
-  const gradient = ctx.createLinearGradient(
-    0,
-    0,
-    0,
-    canvas.height
-  );
-
-  gradient.addColorStop(0, "#ffff66");
-  gradient.addColorStop(0.2, "#ffcc00");
-  gradient.addColorStop(0.4, "#ff8800");
-  gradient.addColorStop(0.7, "#ff3300");
-  gradient.addColorStop(1, "#660000");
-
-  ctx.fillStyle = gradient;
-  ctx.shadowBlur = 30;
+  ctx.shadowBlur = 25;
   ctx.shadowColor = "#ff5500";
 
-  // LEFT RIVER
+  const g = ctx.createLinearGradient(0, 0, 0, canvas.height);
+
+  g.addColorStop(0, "#ffff66");
+  g.addColorStop(0.3, "#ff9900");
+  g.addColorStop(0.6, "#ff3300");
+  g.addColorStop(1, "#660000");
+
+  ctx.fillStyle = g;
+
+  // LEFT
   ctx.beginPath();
   ctx.moveTo(canvas.width * 0.25, 0);
 
   for (let y = 0; y < canvas.height; y += 20) {
     ctx.lineTo(
-      canvas.width * 0.25 + Math.sin((y + lavaOffset) * 0.02) * 30,
+      canvas.width * 0.25 + Math.sin((y + lavaOffset) * 0.02) * 25,
       y
     );
   }
@@ -63,13 +60,13 @@ function drawLavaRiver() {
   ctx.lineTo(canvas.width * 0.30, canvas.height);
   ctx.fill();
 
-  // RIGHT RIVER
+  // RIGHT
   ctx.beginPath();
   ctx.moveTo(canvas.width * 0.70, 0);
 
   for (let y = 0; y < canvas.height; y += 20) {
     ctx.lineTo(
-      canvas.width * 0.70 + Math.cos((y + lavaOffset) * 0.02) * 30,
+      canvas.width * 0.70 + Math.cos((y + lavaOffset) * 0.02) * 25,
       y
     );
   }
@@ -86,10 +83,9 @@ function drawLavaRiver() {
 
 function drawEmbers() {
 
-  embers.forEach(p => {
+  for (let p of embers) {
 
     ctx.fillStyle = "#ffb300";
-
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
     ctx.fill();
@@ -100,15 +96,16 @@ function drawEmbers() {
       p.y = canvas.height;
       p.x = Math.random() * canvas.width;
     }
-  });
-
+  }
 }
 
 /* =========================
-   MAIN LOOP
+   LOOP (SAFE)
 ========================= */
 
 function loop() {
+
+  if (!gameStarted) return;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -118,4 +115,25 @@ function loop() {
   requestAnimationFrame(loop);
 }
 
-loop();
+/* =========================
+   START GAME FIX
+========================= */
+
+window.onload = () => {
+
+  const startScreen = document.getElementById("start-screen");
+  const gameScreen = document.getElementById("game-screen");
+
+  document.addEventListener("click", () => {
+
+    if (gameStarted) return;
+
+    gameStarted = true;
+
+    startScreen.style.display = "none";
+    gameScreen.classList.remove("hidden");
+
+    loop();
+  });
+
+};
