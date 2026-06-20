@@ -1,3 +1,4 @@
+
 body {
   margin: 0;
   font-family: Arial;
@@ -9,6 +10,10 @@ canvas {
   display: block;
   background: #123012;
 }
+
+/* =========================
+   START SCREEN
+========================= */
 
 #start-screen {
   text-align: center;
@@ -36,9 +41,17 @@ canvas {
   background: #3c7a3c;
 }
 
+/* =========================
+   HIDE SYSTEM
+========================= */
+
 .hidden {
   display: none;
 }
+
+/* =========================
+   UI PANEL (RESOURCES)
+========================= */
 
 #ui {
   position: fixed;
@@ -47,4 +60,40 @@ canvas {
   background: rgba(0,0,0,0.6);
   padding: 10px;
   border-radius: 8px;
+}
+
+/* =========================
+   🏗️ BUILDING SYSTEM UI
+========================= */
+
+#build-menu {
+  position: fixed;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 999;
+}
+
+#build-menu button {
+  width: 120px;
+  padding: 10px;
+  background: #2d5a2d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+#build-menu button:hover {
+  background: #3c7a3c;
+}
+
+#build-menu button:disabled {
+  background: #444;
+  cursor: not-allowed;
 }
