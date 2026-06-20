@@ -8,7 +8,7 @@
 
 <body>
 
-<!-- 👑 START SCREEN (RESTORED) -->
+<!-- 👑 START SCREEN -->
 <div id="start-screen">
   <h1>Poly Kingdoms</h1>
   <p>Piliin ang iyong Kaharian</p>
@@ -20,13 +20,22 @@
   </div>
 </div>
 
-<!-- 🎮 GAME SCREEN (RESTORED - IMPORTANT) -->
+<!-- 🎮 GAME SCREEN -->
 <div id="game-screen" class="hidden">
 
-  <!-- CANVAS (HINDI BINAGO - LAVA STILL WORKS) -->
+  <!-- 🏗️ BUILDING SYSTEM UI -->
+  <div id="build-menu">
+    <button id="farmBtn">🌾 Farm</button>
+    <button id="woodBtn">🪵 Lumber</button>
+    <button id="stoneBtn">🪨 Quarry</button>
+    <button id="goldBtn">💰 Gold</button>
+    <button id="castleBtn">🏰 Castle</button>
+  </div>
+
+  <!-- 🌋 CANVAS (LAVA SYSTEM) -->
   <canvas id="canvas"></canvas>
 
-  <!-- UI PANEL (NAWALA BEFORE, IBINALIK) -->
+  <!-- 📊 RESOURCES UI -->
   <div id="ui">
     Food: <span id="food">0</span> |
     Wood: <span id="wood">0</span> |
@@ -36,7 +45,7 @@
 
 </div>
 
-<!-- SCRIPT (HINDI BINAGO LAVA SYSTEM) -->
+<!-- SCRIPT -->
 <script src="script.js"></script>
 
 </body>
