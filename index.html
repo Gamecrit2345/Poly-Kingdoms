@@ -1,135 +1,40 @@
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Poly Kingdoms</title>
+  <link rel="stylesheet" href="style.css">
+</head>
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+<body>
 
-/* =========================
-   GAME STATE
-========================= */
+<!-- 👑 START SCREEN -->
+<div id="start-screen">
+  <h1>Poly Kingdoms</h1>
+  <p>Piliin ang iyong Kaharian</p>
 
-let gameStarted = false;
+  <div id="civ-list">
+    <!-- optional buttons later -->
+  </div>
+</div>
 
-/* =========================
-   EMBERS
-========================= */
+<!-- 🎮 GAME SCREEN -->
+<div id="game-screen" class="hidden">
 
-const embers = [];
-let lavaOffset = 0;
+  <canvas id="canvas"></canvas>
 
-for (let i = 0; i < 120; i++) {
-  embers.push({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    size: Math.random() * 3 + 1,
-    speed: Math.random() * 2 + 0.5
-  });
-}
+  <!-- UI PANEL -->
+  <div id="ui">
+    Food: <span id="food">0</span> |
+    Wood: <span id="wood">0</span> |
+    Stone: <span id="stone">0</span> |
+    Gold: <span id="gold">0</span>
+  </div>
 
-/* =========================
-   LAVA RIVER
-========================= */
+</div>
 
-function drawLavaRiver() {
+<!-- ✅ IMPORTANT: SINGLE SCRIPT ONLY -->
+<script src="script.js"></script>
 
-  lavaOffset += 2;
-
-  ctx.shadowBlur = 30;
-  ctx.shadowColor = "#ff5500";
-
-  const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-
-  gradient.addColorStop(0, "#ffff66");
-  gradient.addColorStop(0.2, "#ffcc00");
-  gradient.addColorStop(0.4, "#ff8800");
-  gradient.addColorStop(0.7, "#ff3300");
-  gradient.addColorStop(1, "#660000");
-
-  ctx.fillStyle = gradient;
-
-  // LEFT
-  ctx.beginPath();
-  ctx.moveTo(canvas.width * 0.25, 0);
-
-  for (let y = 0; y < canvas.height; y += 20) {
-    ctx.lineTo(
-      canvas.width * 0.25 + Math.sin((y + lavaOffset) * 0.02) * 30,
-      y
-    );
-  }
-
-  ctx.lineTo(canvas.width * 0.30, canvas.height);
-  ctx.fill();
-
-  // RIGHT
-  ctx.beginPath();
-  ctx.moveTo(canvas.width * 0.70, 0);
-
-  for (let y = 0; y < canvas.height; y += 20) {
-    ctx.lineTo(
-      canvas.width * 0.70 + Math.cos((y + lavaOffset) * 0.02) * 30,
-      y
-    );
-  }
-
-  ctx.lineTo(canvas.width * 0.75, canvas.height);
-  ctx.fill();
-
-  ctx.shadowBlur = 0;
-}
-
-/* =========================
-   EMBERS
-========================= */
-
-function drawEmbers() {
-
-  embers.forEach(p => {
-
-    ctx.fillStyle = "#ffb300";
-
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-    ctx.fill();
-
-    p.y -= p.speed;
-
-    if (p.y < 0) {
-      p.y = canvas.height;
-      p.x = Math.random() * canvas.width;
-    }
-  });
-
-}
-
-/* =========================
-   LOOP
-========================= */
-
-function loop() {
-
-  if (!gameStarted) return;
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  drawLavaRiver();
-  drawEmbers();
-
-  requestAnimationFrame(loop);
-}
-
-/* =========================
-   START GAME
-========================= */
-
-document.addEventListener("click", () => {
-
-  if (gameStarted) return;
-
-  gameStarted = true;
-
-  document.getElementById("start-screen").style.display = "none";
-  document.getElementById("game-screen").classList.remove("hidden");
-
-  loop();
-});
+</body>
+</html>
