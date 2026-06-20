@@ -11,6 +11,40 @@ canvas.height = window.innerHeight;
 let gameStarted = false;
 
 /* =========================
+   RESOURCES (RoK STYLE)
+========================= */
+
+let resources = {
+  food: 100,
+  wood: 100,
+  stone: 100,
+  gold: 100
+};
+
+function updateUI() {
+  document.getElementById("food").innerText = resources.food;
+  document.getElementById("wood").innerText = resources.wood;
+  document.getElementById("stone").innerText = resources.stone;
+  document.getElementById("gold").innerText = resources.gold;
+}
+
+/* =========================
+   PASSIVE INCOME
+========================= */
+
+setInterval(() => {
+  if (!gameStarted) return;
+
+  resources.food += 5;
+  resources.wood += 5;
+  resources.stone += 3;
+  resources.gold += 2;
+
+  updateUI();
+
+}, 2000);
+
+/* =========================
    EMBERS
 ========================= */
 
@@ -27,7 +61,7 @@ for (let i = 0; i < 120; i++) {
 }
 
 /* =========================
-   DRAW LAVA
+   LAVA RIVER (UNCHANGED STYLE)
 ========================= */
 
 function drawLavaRiver() {
@@ -78,7 +112,7 @@ function drawLavaRiver() {
 }
 
 /* =========================
-   EMBERS
+   EMBERS DRAW
 ========================= */
 
 function drawEmbers() {
@@ -86,6 +120,7 @@ function drawEmbers() {
   for (let p of embers) {
 
     ctx.fillStyle = "#ffb300";
+
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
     ctx.fill();
@@ -100,7 +135,55 @@ function drawEmbers() {
 }
 
 /* =========================
-   LOOP (SAFE)
+   UNITS (RoK STYLE)
+========================= */
+
+let units = [];
+
+function drawUnits() {
+
+  for (let u of units) {
+
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(u.x, u.y, 10, 10);
+
+    u.y -= u.speed;
+  }
+}
+
+/* =========================
+   CLICK = SPAWN UNIT
+========================= */
+
+document.addEventListener("click", () => {
+
+  if (!gameStarted) return;
+
+  units.push({
+    x: Math.random() * canvas.width,
+    y: canvas.height - 60,
+    speed: 1 + Math.random() * 2
+  });
+});
+
+/* =========================
+   KEYBOARD BOOST (RoK FEEL)
+========================= */
+
+document.addEventListener("keydown", (e) => {
+
+  if (!gameStarted) return;
+
+  if (e.key === "f") resources.food += 20;
+  if (e.key === "w") resources.wood += 20;
+  if (e.key === "s") resources.stone += 20;
+  if (e.key === "g") resources.gold += 20;
+
+  updateUI();
+});
+
+/* =========================
+   MAIN LOOP
 ========================= */
 
 function loop() {
@@ -111,12 +194,13 @@ function loop() {
 
   drawLavaRiver();
   drawEmbers();
+  drawUnits();
 
   requestAnimationFrame(loop);
 }
 
 /* =========================
-   START GAME FIX
+   START GAME
 ========================= */
 
 window.onload = () => {
@@ -133,83 +217,7 @@ window.onload = () => {
     startScreen.style.display = "none";
     gameScreen.classList.remove("hidden");
 
+    updateUI();
     loop();
   });
-
 };
-
-/* =========================
-   RISE OF KINGDOMS STYLE SYSTEM
-   ADD-ON (DO NOT BREAK LAVA SYSTEM)
-========================= */
-
-/* RESOURCES */
-let resources = {
-  food: 100,
-  wood: 100,
-  stone: 100,
-  gold: 100
-};
-
-/* UPDATE UI */
-function updateUI() {
-  document.getElementById("food").innerText = resources.food;
-  document.getElementById("wood").innerText = resources.wood;
-  document.getElementById("stone").innerText = resources.stone;
-  document.getElementById("gold").innerText = resources.gold;
-}
-
-/* PASSIVE INCOME SYSTEM (CITY STYLE) */
-setInterval(() => {
-  if (!gameStarted) return;
-
-  resources.food += 5;
-  resources.wood += 5;
-  resources.stone += 3;
-  resources.gold += 2;
-
-  updateUI();
-
-}, 2000);
-
-/* BUILD / ACTION HOTKEYS */
-document.addEventListener("keydown", (e) => {
-
-  if (!gameStarted) return;
-
-  if (e.key === "f") resources.food += 20;   // farm boost
-  if (e.key === "w") resources.wood += 20;   // wood boost
-  if (e.key === "s") resources.stone += 20;  // stone boost
-  if (e.key === "g") resources.gold += 20;   // gold boost
-
-  updateUI();
-});
-
-/* UNITS SYSTEM */
-let units = [];
-
-/* SPAWN UNITS ON CLICK */
-document.addEventListener("click", () => {
-
-  if (!gameStarted) return;
-
-  units.push({
-    x: Math.random() * canvas.width,
-    y: canvas.height - 60,
-    speed: 1 + Math.random() * 2
-  });
-
-});
-
-/* DRAW UNITS (ADD TO YOUR LOOP) */
-function drawUnits() {
-
-  for (let u of units) {
-
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(u.x, u.y, 10, 10);
-
-    u.y -= u.speed;
-
-  }
-}
