@@ -1,3 +1,4 @@
+
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
@@ -11,7 +12,7 @@ canvas.height = window.innerHeight;
 let gameStarted = false;
 
 /* =========================
-   RESOURCES (RoK STYLE)
+   RESOURCES
 ========================= */
 
 let resources = {
@@ -21,6 +22,22 @@ let resources = {
   gold: 100
 };
 
+/* =========================
+   BUILDINGS (ROK SYSTEM)
+========================= */
+
+let buildings = {
+  castle: 1,
+  farm: 0,
+  lumber: 0,
+  quarry: 0,
+  goldmine: 0
+};
+
+/* =========================
+   UI UPDATE
+========================= */
+
 function updateUI() {
   document.getElementById("food").innerText = resources.food;
   document.getElementById("wood").innerText = resources.wood;
@@ -29,10 +46,30 @@ function updateUI() {
 }
 
 /* =========================
+   BUILDING BONUS SYSTEM
+========================= */
+
+function applyBuildingIncome() {
+
+  resources.food += buildings.farm * 2;
+  resources.wood += buildings.lumber * 2;
+  resources.stone += buildings.quarry * 2;
+  resources.gold += buildings.goldmine * 2;
+
+  if (buildings.castle > 1) {
+    resources.food += buildings.castle;
+    resources.wood += buildings.castle;
+    resources.stone += buildings.castle;
+    resources.gold += buildings.castle;
+  }
+}
+
+/* =========================
    PASSIVE INCOME
 ========================= */
 
 setInterval(() => {
+
   if (!gameStarted) return;
 
   resources.food += 5;
@@ -40,6 +77,7 @@ setInterval(() => {
   resources.stone += 3;
   resources.gold += 2;
 
+  applyBuildingIncome();
   updateUI();
 
 }, 2000);
@@ -61,7 +99,7 @@ for (let i = 0; i < 120; i++) {
 }
 
 /* =========================
-   LAVA RIVER (UNCHANGED STYLE)
+   LAVA RIVER (UNCHANGED)
 ========================= */
 
 function drawLavaRiver() {
@@ -112,7 +150,7 @@ function drawLavaRiver() {
 }
 
 /* =========================
-   EMBERS DRAW
+   EMBERS
 ========================= */
 
 function drawEmbers() {
@@ -135,7 +173,7 @@ function drawEmbers() {
 }
 
 /* =========================
-   UNITS (RoK STYLE)
+   UNITS
 ========================= */
 
 let units = [];
@@ -152,9 +190,10 @@ function drawUnits() {
 }
 
 /* =========================
-   CLICK = SPAWN UNIT
+   CONTROLS
 ========================= */
 
+// SPAWN UNIT
 document.addEventListener("click", () => {
 
   if (!gameStarted) return;
@@ -166,13 +205,16 @@ document.addEventListener("click", () => {
   });
 });
 
-/* =========================
-   KEYBOARD BOOST (RoK FEEL)
-========================= */
-
+// BUILD SYSTEM
 document.addEventListener("keydown", (e) => {
 
   if (!gameStarted) return;
+
+  if (e.key === "1") buildings.farm++;
+  if (e.key === "2") buildings.lumber++;
+  if (e.key === "3") buildings.quarry++;
+  if (e.key === "4") buildings.goldmine++;
+  if (e.key === "c") buildings.castle++;
 
   if (e.key === "f") resources.food += 20;
   if (e.key === "w") resources.wood += 20;
@@ -183,7 +225,7 @@ document.addEventListener("keydown", (e) => {
 });
 
 /* =========================
-   MAIN LOOP
+   LOOP
 ========================= */
 
 function loop() {
